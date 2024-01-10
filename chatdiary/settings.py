@@ -121,7 +121,7 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = (
     [
-        os.path.join(BASE_DIR, "static"), 
+        os.path.join(BASE_DIR, "diary/static/css/"), 
     ]
 )
 # Default primary key field type
