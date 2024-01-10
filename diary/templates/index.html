@@ -1,0 +1,78 @@
+{% extends "base.html" %}{% block content %}
+<div id="content" class="content cf">
+
+  <div id="content-in" class="content-in wrap">
+
+    <main id="main" class="main" itemscope="" itemtype="https://schema.org/Blog">
+      <div id="list" class="list ect-vertical-card-3 ect-vertical-card ect-3-columns front-page-type-index">
+        <!-- 修正箇所 -->
+        {% for col in data %}
+        <a href="{% url 'detail_page' id col.id %}" class="entry-card-wrap a-wrap border-element cf" title="何やったか"
+          rel="noreferrer" target="_top" aria-label="日記
+何やったか
+ここ本文
+2023.08.03 (opens in a new tab)">
+
+
+          <article id="post-26"
+            class="post-26 entry-card e-card cf post type-post status-publish format-standard hentry category-diary-post">
+            <figure class="entry-card-thumb card-thumb e-card-thumb">
+              <!-- <img src="https://drive.google.com/uc?export=view&id=1eU_LO8AzroZPWBtRSGHwUIZ1m_IbCnTq&usp=sharing" alt="" class="no-image entry-card-thumb-image list-no-image" width="320" height="180"> -->
+              <!-- <img src="<?!=getFileUrl('1eU_LO8AzroZPWBtRSGHwUIZ1m_IbCnTq')?>"
+        alt="" class="no-image entry-card-thumb-image list-no-image" width="320" height="180"> -->
+              <!-- alt="" class="no-image entry-card-thumb-image list-no-image" width="320" height="180"> -->
+              <span class="cat-label cat-label-3">日記</span>
+            </figure><!-- /.entry-card-thumb -->
+
+            <div class="entry-card-content card-content e-card-content">
+              <h2 class="entry-card-title card-title e-card-title" itemprop="headline">{{col.title}}</h2>
+              <div class="entry-card-snippet card-snippet e-card-snippet">
+                {{col.body}} </div>
+              <div class="entry-card-meta card-meta e-card-meta">
+                <div class="entry-card-info e-card-info">
+                  <span class="post-date"><span class="fa fa-clock-o" aria-hidden="true"></span><span
+                      class="entry-date">{{col.posted_date}}</span></span>
+                </div>
+                <div class="entry-card-categorys e-card-categorys"><span class="entry-category">日記</span></div>
+              </div>
+            </div><!-- /.entry-card-content -->
+          </article>
+        </a>
+
+        {% empty %}
+        <div class="notification">
+
+        </div>
+        {% endfor %}
+      </div><!-- .list -->
+    </main>
+
+    <div id="sidebar" class="sidebar nwa cf" role="complementary">
+
+
+
+
+      <div id="sidebar-scroll" class="sidebar-scroll">
+        <aside id="search-2" class="widget widget-sidebar widget-sidebar-scroll widget_search">
+          <form class="search-box input-box" method="get" action="{% url 'top_page' id %}" rel="noopener" target="_top">
+            <input type="hidden" name="page" value=1>
+            <input type="text" placeholder="サイト内を検索" name="search" class="search-edit" aria-label="input" value="">
+            <button type="submit" class="search-submit" aria-label="button"><span class="fa fa-search"
+                aria-hidden="true"></span></button>
+          </form>
+        </aside>
+        <!-- <aside id="archives-2" class="widget widget-sidebar widget-sidebar-scroll widget_archive">
+      <h3 class="widget-sidebar-scroll-title widget-title">アーカイブ</h3>
+      <ul>
+        <li><a href="https://nikki.ken02.com/date/2023/08/">2023年8月</a></li>
+      </ul>
+
+    </aside> -->
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

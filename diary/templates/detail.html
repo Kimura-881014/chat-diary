@@ -1,0 +1,96 @@
+{% extends "base.html" %}{% block content %}
+<div id="content" class="content cf">
+    <div id="content-in" class="content-in wrap">
+        <main id="main" class="main" itemscope="" itemtype="https://schema.org/Blog">
+            <article id="post-26"
+                class="article post-26 post type-post status-publish format-standard hentry category-diary-post"
+                itemscope="itemscope" itemprop="blogPost" itemtype="https://schema.org/BlogPosting"
+                data-clarity-region="article">
+
+                <!-- 修正箇所 -->
+                <header class="article-header entry-header">
+                    <h1 class="entry-title" itemprop="headline">
+                        {{data.title}}
+                    </h1>
+
+                    <div class="eye-catch-wrap display-none">
+                        <figure class="eye-catch" itemprop="image" itemscope=""
+                            itemtype="https://schema.org/ImageObject">
+                            <meta itemprop="width" content="1280">
+                            <meta itemprop="height" content="720">
+                        </figure>
+                    </div>
+
+
+                    <div class="date-tags">
+                        <span class="post-date"><span class="fa fa-clock-o" aria-hidden="true"></span><time
+                                class="entry-date date published updated" datetime="2023-08-03T11:37:51+09:00"
+                                itemprop="datePublished dateModified">
+                                {{data.posted_date}}
+                            </time></span>
+                    </div>
+
+                </header>
+
+
+                <div class="entry-content cf" itemprop="mainEntityOfPage">
+                    <div class="wp-block-post-date">
+                        {{data.posted_date}}
+                    </div>
+
+
+                    <div class="wp-block-columns is-layout-flex wp-container-2">
+                        <div class="wp-block-column is-layout-flow">
+                            <p>{{data.body}}</p>
+                        </div>
+
+                    </div>
+                    <a href="{% url 'edit' id data.id %}" rel="noopener" target="_top">修正</a>
+                    <!-- <footer class="article-footer entry-footer">　-->
+
+
+                    <!-- publisher設定 -->
+                    <div class="publisher" itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
+                        <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
+                            <meta itemprop="width" content="206">
+                            <meta itemprop="height" content="60">
+                        </div>
+                        <div itemprop="name">日記試作</div>
+                    </div>
+                    </footer>
+
+            </article>
+
+            <div class="under-entry-content">
+
+                <div id="pager-post-navi" class="pager-post-navi post-navi-default cf">
+                </div><!-- /.pager-post-navi -->
+
+
+            </div>
+        </main>
+
+        <div id="sidebar" class="sidebar nwa cf" role="complementary">
+            <div id="sidebar-scroll" class="sidebar-scroll">
+                <aside id="search-2" class="widget widget-sidebar widget-sidebar-scroll widget_search">
+                    <form class="search-box input-box" method="get" action="{% url 'top_page' id %}" rel="noopener"
+                        target="_top">
+                        <input type="hidden" name="page" value=1>
+                        <input type="text" placeholder="サイト内を検索" name="search" class="search-edit" aria-label="input"
+                            value="">
+                        <button type="submit" class="search-submit" aria-label="button"><span class="fa fa-search"
+                                aria-hidden="true"></span></button>
+                    </form>
+                </aside>
+                <!-- <aside id="archives-2" class="widget widget-sidebar widget-sidebar-scroll widget_archive">
+      <h3 class="widget-sidebar-scroll-title widget-title">アーカイブ</h3>
+      <ul>
+        <li><a href="https://nikki.ken02.com/date/2023/08/">2023年8月</a></li>
+      </ul>
+
+    </aside> -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
