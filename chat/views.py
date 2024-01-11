@@ -34,7 +34,7 @@ def create_template_message(message,user_id):
     if message == '保存':
         message = '保存しました'
     elif message == '日記を見る':
-        message = str(reverse('top_page', kwargs={'user_id':user_id}))
+        message = "https://kimura881014.pythonanywhere.com/diary"+str(reverse('top_page', kwargs={'user_id':user_id}))+"?page=1"
     test_message = [
                 {
                     'type': 'text',
