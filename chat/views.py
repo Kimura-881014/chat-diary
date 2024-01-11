@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.urls import reverse
 
 # Create your views here.
 from django.views.generic import TemplateView
@@ -22,15 +23,18 @@ def call_back(request):
         request = json.loads(request.body.decode('utf-8'))
         data = request['events'][0]
         message = data['message']
+        user_id = data['source']['userId']
         reply_token = data['replyToken']
-        line_message = LineMessage(create_single_text_message(message['text']))
+        line_message = LineMessage(create_template_message(message['text'],user_id))
         line_message.reply(reply_token)
         return HttpResponse(status=200)
 
 
-def create_single_text_message(message):
-    if message == 'ありがとう':
-        message = 'どういたしまして！'
+def create_template_message(message,user_id):
+    if message == '保存':
+        message = '保存しました'
+    elif message == '日記を見る':
+        message = str(reverse('top_page', kwargs={'user_id':user_id}))
     test_message = [
                 {
                     'type': 'text',
