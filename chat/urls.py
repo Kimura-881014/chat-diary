@@ -3,7 +3,7 @@ from django.urls import path
 
 urlpatterns = [
     # path('', IndexView.as_view(),name="top_page"),
-    path('/', call_back,name="call_back"),
+    path('', call_back,name="call_back"),
 ]
 
 
