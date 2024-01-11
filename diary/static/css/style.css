@@ -1,5 +1,5 @@
 
-@charset "UTF-8";License
+@charset "UTF-8";
 /*
 Theme Name: Cocoon
 Description: SEO・高速化・モバイルファースト最適化済みの無料テーマ。
@@ -14,11 +14,11 @@ Tags: two-columns, left-sidebar, right-sidebar
 License: GNU General Public License
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
+
 #main {
   background-size: cover; /* 画像を要素に合わせて調整 */
   background-repeat: no-repeat; /* 画像を繰り返し表示しない */
 }
-
 
 
 :root {
@@ -2452,7 +2452,7 @@ hr {
 }
 
 .no-scrollable-main .main {
-  height: 100%;
+  height: auto;
 }
 
 .main-scroll {
