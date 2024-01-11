@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 @csrf_exempt
-def index(request):
+def call_back(request):
     if request.method == 'POST':
         request = json.loads(request.body.decode('utf-8'))
         data = request['events'][0]

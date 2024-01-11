@@ -1,9 +1,9 @@
-from .views import IndexView, index
+from .views import IndexView, call_back
 from django.urls import path
 
 urlpatterns = [
     # path('/', IndexView.as_view(),name="top_page"),
-    path('/', index(),name="call_back"),
+    path('/', call_back(),name="call_back"),
 ]
 
 
