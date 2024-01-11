@@ -25,7 +25,7 @@ def index(request):
         reply_token = data['replyToken']
         line_message = LineMessage(create_single_text_message(message['text']))
         line_message.reply(reply_token)
-        return HttpResponse("ok")
+        return HttpResponse(status=200)
 
 
 def create_single_text_message(message):
