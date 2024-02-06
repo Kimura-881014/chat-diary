@@ -9,19 +9,21 @@
                 <form action="." method="post">
                     {% csrf_token %}
                     {{form.user_id.as_hidden}}
+                    {{form.chat_type.as_hidden}}
+                    {{form.release.as_hidden}}
                     <strong>Title</strong>
                     {{form.title}}
                     <small>text</small>
                     {{form.body}}
                     <div class="field">
                         <div class="contorol">
-                            <button class="button is-danger">送信</button>
+                            <button class="btn btn-outline-success">修正</button>
                         </div>
                     </div>
                 </form>
 
-                <a href="{% url 'delete' id data.id %}" rel="noopener" target="_top">削除</a>
-                <a href="{% url 'detail_page' id data.id %}" rel="noopener" target="_top">戻る</a>
+                <a href="{% url 'delete' data.id %}" rel="noopener" target="_top" class="btn btn-outline-danger">削除</a>
+                <a href="{% url 'detail_page' data.id %}" rel="noopener" target="_top" class="btn btn-outline-secondary">戻る</a>
 
 
                 <div class="publisher" itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">

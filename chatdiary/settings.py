@@ -27,6 +27,8 @@ SECRET_KEY = 'django-insecure-wlwty3nlz-sevkf=0!p(@8tcohvr-@zj(@ufllzd^@bcmp2+4t
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://rested-redbird-widely.ngrok-free.app']
+
 
 
 # Application definition
@@ -40,7 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'chat',
     'diary',
+    'accounts',
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

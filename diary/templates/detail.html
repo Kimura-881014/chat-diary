@@ -45,7 +45,7 @@
                         </div>
 
                     </div>
-                    <a href="{% url 'edit' id data.id %}" rel="noopener" target="_top">修正</a>
+                    <a href="{% url 'edit' data.id %}" rel="noopener" target="_top" class="btn btn-outline-primary">修正</a>
                     <!-- <footer class="article-footer entry-footer">　-->
 
 
@@ -73,7 +73,7 @@
         <div id="sidebar" class="sidebar nwa cf" role="complementary">
             <div id="sidebar-scroll" class="sidebar-scroll">
                 <aside id="search-2" class="widget widget-sidebar widget-sidebar-scroll widget_search">
-                    <form class="search-box input-box" method="get" action="{% url 'top_page' id %}" rel="noopener"
+                    <form class="search-box input-box" method="get" action="{% url 'top_page' %}" rel="noopener"
                         target="_top">
                         <input type="hidden" name="page" value=1>
                         <input type="text" placeholder="サイト内を検索" name="search" class="search-edit" aria-label="input"

@@ -7,7 +7,7 @@
       <div id="list" class="list ect-vertical-card-3 ect-vertical-card ect-3-columns front-page-type-index">
         <!-- 修正箇所 -->
         {% for col in data %}
-        <a href="{% url 'detail_page' id col.id %}" class="entry-card-wrap a-wrap border-element cf" title="何やったか"
+        <a href="{% url 'detail_page' col.id %}" class="entry-card-wrap a-wrap border-element cf" title="何やったか"
           rel="noreferrer" target="_top" aria-label="日記
 何やったか
 ここ本文
@@ -54,7 +54,7 @@
 
       <div id="sidebar-scroll" class="sidebar-scroll">
         <aside id="search-2" class="widget widget-sidebar widget-sidebar-scroll widget_search">
-          <form class="search-box input-box" method="get" action="{% url 'top_page' id %}" rel="noopener" target="_top">
+          <form class="search-box input-box" method="get" action="{% url 'top_page' %}" rel="noopener" target="_top">
             <input type="hidden" name="page" value=1>
             <input type="text" placeholder="サイト内を検索" name="search" class="search-edit" aria-label="input" value="">
             <button type="submit" class="search-submit" aria-label="button"><span class="fa fa-search"

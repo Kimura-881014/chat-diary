@@ -20,6 +20,7 @@
   <link rel="dns-prefetch" href="//ajax.googleapis.com">
   <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
   <style id="global-styles-inline-css">
     body {
@@ -10041,7 +10042,7 @@
         <div class="footer-bottom fdt-logo fnm-text-width cf">
           <div class="footer-bottom-logo">
           </div>
-          <a href="{% url 'top_page' id %}?page=1" rel="noopener" target="_top">top</a>
+          <a href="{% url 'top_page' %}?page=1" rel="noopener" target="_top">top</a>
 
           <div class="footer-bottom-content">
             <nav id="navi-footer" class="navi-footer">
@@ -10069,7 +10070,7 @@
 
       <!-- ホームボタン -->
       <li class="home-menu-button menu-button">
-        <a href="{% url 'top_page' id %}" class="menu-button-in">
+        <a href="{% url 'top_page' %}" class="menu-button-in">
           <span class="home-menu-icon menu-icon">
       <span class="fa fa-home" aria-hidden="true"></span>
           </span>
@@ -10091,7 +10092,7 @@
         <label class="display-none" id="search-menu-close" for="search-menu-input"></label>
         <div id="search-menu-content" class="search-menu-content">
           <form class="search-box input-box" method="get"
-            action="{% url 'top_page' id %}"
+            action="{% url 'top_page' %}"
             rel="noopener" target="_top">
           <input type="hidden" name="page" value=1 >
           <input type="text" placeholder="サイト内を検索" name="search" class="search-edit" aria-label="input" value="">

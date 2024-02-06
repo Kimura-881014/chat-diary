@@ -1,19 +1,35 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from urllib.parse import urlencode
 
+
 # Create your views here.
 from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Data
 from .forms import EditForm
 
 from django.db.models import Q
 
+class LoginView(TemplateView):
+    def get(self, request,*args, **kwargs):
+        user_id = request.GET.get('id')
+        password = request.GET.get('pw')
+        user = authenticate(username=user_id, password=password)
+        
+        if user is not None:
+            login(self.request, user)
+            return redirect('top_page')
+        else:
+            return render(request, 'error.html')
 
-class IndexView(TemplateView):
+
+class IndexView(LoginRequiredMixin,TemplateView):
     template_name = 'index.html'
 
-    def get_context_data(self,user_id, **kwargs):
+    def get_context_data(self, **kwargs):
+        user_id = self.request.user.user_id
         context = super().get_context_data(**kwargs)
         # user_id = (self.request.GET.get('id'))
         if 'page' in self.request.GET:
@@ -23,9 +39,9 @@ class IndexView(TemplateView):
 
         if 'search' in self.request.GET:
             search_word = self.request.GET.get('search')
-            context['data'] = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),user_id=user_id)[0:]
+            context['data'] = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),user_id=user_id).order_by('posted_date').reverse()[0:]
         else:
-            context['data'] = Data.objects.filter(user_id=user_id)[0:]
+            context['data'] = Data.objects.filter(user_id=user_id).order_by('posted_date').reverse()[0:]
 
         context['id'] = user_id
 
@@ -33,10 +49,11 @@ class IndexView(TemplateView):
     
 
 
-class DetailView(TemplateView):
+class DetailView(LoginRequiredMixin,TemplateView):
     template_name = 'detail.html'
 
-    def get_context_data(self, user_id, index, *args, **kwargs):
+    def get_context_data(self, index, *args, **kwargs):
+        user_id = self.request.user.user_id
         context = super().get_context_data(**kwargs)
         # user_id = (self.request.GET.get('id'))
         # index = int(self.request.GET.get('index'))
@@ -50,17 +67,20 @@ class DetailView(TemplateView):
            template_name = 'error.html'
 
 
-class EditView(TemplateView):
+class EditView(LoginRequiredMixin,TemplateView):
     template_name = 'edit.html'
     # アクセスしてきたときにhtmlと入力フォームを返す
-    def get_context_data(self, user_id, index, *args, **kwargs):
+    def get_context_data(self, index, *args, **kwargs):
+        user_id = self.request.user.user_id
         context = super().get_context_data(**kwargs)
         col = Data.objects.get(id=index)
         if col.user_id == user_id: # 修正するcolのuseridがgetのidと等しいとき
             initial = {'user_id':user_id,
                        'title':col.title,
                        'posted_date':col.posted_date,
-                       'body': col.body,}
+                       'body': col.body,
+                       'chat_type':col.chat_type,
+                       'release':col.release}
             form = EditForm(initial=initial)
             context['data'] = col
             context['id'] = user_id
@@ -70,7 +90,8 @@ class EditView(TemplateView):
            template_name = 'error.html'
     
     # editpageで修正ボタンが押されてPOST requestが飛んできたとき
-    def post(self, request, user_id, index, *args, **kwargs):
+    def post(self, request, index, *args, **kwargs):
+        user_id = self.request.user.user_id
         form = EditForm(request.POST)
         if form.is_valid():
             title = form['title'].value
@@ -81,16 +102,17 @@ class EditView(TemplateView):
                                               'body':body
                                             })
 
-            return redirect("detail_page", user_id=user_id,index=index)
+            return redirect("detail_page",index=index)
     
-class MyDeleteView(TemplateView):
-    def get(self, request, user_id, index, *args, **kwargs):
+class MyDeleteView(LoginRequiredMixin,TemplateView):
+    def get(self, request, index, *args, **kwargs):
+        user_id = self.request.user.user_id
         # user_id = (self.request.GET.get('id'))
         # index = int(self.request.GET.get('index'))
         col = Data.objects.get(id=index)
         if col.user_id == user_id: # 消そうとしているcolのuseridがgetのidと等しいとき
             col.delete()
-            url = reverse('top_page', kwargs={'user_id':user_id})
+            url = reverse('top_page')
             parameters = urlencode({'page':1})
             # parameters = urlencode({'id':user_id,'page':1})
             return redirect(f'{url}?{parameters}')
