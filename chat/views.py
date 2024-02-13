@@ -28,17 +28,15 @@ from django.views.generic import TemplateView
 class IndexView(TemplateView):
     template_name = 'test.html'
 
-# ====================================================
-# diary_url = "https://kimura881014.pythonanywhere.com"
-diary_url = "https://rested-redbird-widely.ngrok-free.app"
-# diary_url = "https://script.google.com/macros/s/AKfycbyS-Xo6rD-_bolhZillBUeGmBt4IcxXPatHc-4dIo_2-saBLnJjZrf4QDO7pjqloqR9/exec"
-# ====================================================
 
 week_max_number_of_times = 100
 BASE_DIR = Path(__file__).resolve().parent.parent
 dotenv_path = os.path.join(BASE_DIR, '.env')
 load_dotenv(dotenv_path)
 openai.api_key = os.environ['OPENAI_API_KEY']
+
+diary_url = os.environ['DIARY_URL']
+
 
 REPLY_ENDPOINT_URL = "https://api.line.me/v2/bot/message/reply"
 ACCESSTOKEN = os.environ['ACCESSTOKEN']
