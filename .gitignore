@@ -1,5 +1,4 @@
-chat/.env
-chatdiary/.env
+.env
 accounts/migrations
 chat/migratins
 diary/migrations

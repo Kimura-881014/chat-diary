@@ -22,3 +22,6 @@ class ChatType(models.Model):
     text_model = models.PositiveSmallIntegerField(default=3)
     question_model = models.PositiveSmallIntegerField(default=4)
     release = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.id}: {self.group_name}"

@@ -1,7 +1,9 @@
 import base64, hmac, hashlib
+import time
 
 import random, string
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 from django.shortcuts import render
@@ -33,7 +35,9 @@ diary_url = "https://rested-redbird-widely.ngrok-free.app"
 # ====================================================
 
 week_max_number_of_times = 100
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path)
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 REPLY_ENDPOINT_URL = "https://api.line.me/v2/bot/message/reply"
@@ -59,15 +63,12 @@ def call_back(request):
             data = request['events'][0]
             reply_token = data['replyToken']
             user_id = data['source']['userId']
-            # print(data)
             if data['type'] == 'message':
                 message = data['message']
                 if message['type'] == 'text':
                     line_message = LineMessage(create_text_message(message['text'],user_id,request))
-                    print("test1",message['text'])
                     line_message.reply(reply_token)
             elif data['type'] == 'postback':
-                print(data)
                 message = data['postback']
                 line_message = LineMessage(return_post_back(message['data'],user_id))
                 line_message.reply(reply_token)
@@ -289,11 +290,14 @@ def gpt_api(t_or_q,prompt,text,data):
     print("********************************")
     print(messages)
     print("--------------------------------")
+    start = time.time()
     response = openai.chat.completions.create(
                     model = propaty.model,
                     messages = messages,
                     temperature=0
                 )
+    end = time.time()
+    print("finish:",end-start)
     text = response.choices[0].message.content
     return text, json.dumps(messages)
 

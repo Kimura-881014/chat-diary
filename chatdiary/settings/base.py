@@ -15,22 +15,22 @@ import os
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+PARENT_DIR = BASE_DIR.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-load_dotenv()
+# load_dotenv()
+# dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+dotenv_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path)
 SECRET_KEY = os.environ['SECRET_KEY']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://rested-redbird-widely.ngrok-free.app']
-
 
 
 # Application definition
@@ -80,15 +80,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'chatdiary.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
@@ -125,14 +117,31 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
+# STATIC_URL = 'static/'
+
+# STATICFILES_DIRS = (
+#     [
+#         os.path.join(BASE_DIR, "diary/static/css/"), 
+#     ]
+# )
+# # Default primary key field type
+# # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 STATIC_URL = 'static/'
 
+STATIC_ROOT = PARENT_DIR/'chat-diary/public/static'
 STATICFILES_DIRS = (
     [
-        os.path.join(BASE_DIR, "diary/static/css/"), 
+        os.path.join(BASE_DIR, "diary/static/css/"),
     ]
 )
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+
+
+MEDIA_ROOT = PARENT_DIR/'chat-diary/public/media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

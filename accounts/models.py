@@ -39,7 +39,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
 
 
-    user_id = models.CharField(_("user_id"),max_length=30,unique=True)
+    user_id = models.CharField(_("user_id"),max_length=50,unique=True)
     username = models.CharField(_("username"), max_length=50, validators=[username_validator], blank=True)
     email = models.EmailField(_("email_address"), blank=True)
     is_staff = models.BooleanField(_("staff status"), default=False)
