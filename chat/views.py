@@ -148,20 +148,20 @@ def save_data(user_id):
 
 # サイトURLを送る
 def send_diary_url(user_id,request):
-    password = randompwd(20)
-    u = User.objects.get(user_id=user_id)
-    u.set_password(password)
-    u.save()
-
-    url = diary_url +str(reverse('login_page'))+"?id="+user_id+"&pw="+password+"&page=1&openExternalBrowser=1" 
-    # 以下はGASに飛ばす
-    # url = diary_url +"?id="+user_id+"&page=1&openExternalBrowser=1"
-
-    message = [{'type': 'text','text': "下のボタンを押してください",
-                    "quickReply": {"items": [{"type": "action",
-                                            "action": {"type": "uri",
-                                                        "label": "ここをクリック",
-                                                        "uri": url}}]}}]
+    try:
+        password = randompwd(20)
+        u = User.objects.get(user_id=user_id)
+        u.set_password(password)
+        u.save()
+        url = diary_url +str(reverse('login_page'))+"?id="+user_id+"&pw="+password+"&page=1&openExternalBrowser=1" 
+        message = [{'type': 'text','text': "下のボタンを押してください",
+                        "quickReply": {"items": [{"type": "action",
+                                                "action": {"type": "uri",
+                                                            "label": "ここをクリック",
+                                                            "uri": url}}]}}]
+    except User.DoesNotExist:
+        message = [{'type': 'text','text': '保存データがありません*1'}]
+        message = add_quick_replay_see_diary(message)
 
     return message
 
