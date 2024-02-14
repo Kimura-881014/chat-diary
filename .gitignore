@@ -1,5 +1,6 @@
 .env
 */migrations
+chat/migrations
 db.sqlite3
 public/static/*
 local-test

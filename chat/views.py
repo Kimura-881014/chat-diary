@@ -285,21 +285,15 @@ def gpt_api(t_or_q,prompt,text,data):
                 {"role": "system", "content": propaty.prompt},
                 {"role": "user", "content": propaty.text}
                 ]
-    print("********************************")
+    print("--------------------------------")
     print(messages)
     print("--------------------------------")
-    start = time.time()
     response = openai.chat.completions.create(
                     model = propaty.model,
                     messages = messages,
                     temperature=0
                 )
-    end = time.time()
-    print("finish:",end-start)
     print("model:",propaty.model)
-    print("@@@@@@@@@@@@@@@@@@@@@")
-    print(response.usage.completion_tokens)
-    print("@@@@@@@@@@@@@@@@@@@@@")
     text = response.choices[0].message.content
     return text, json.dumps(messages)
 
