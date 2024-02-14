@@ -296,6 +296,10 @@ def gpt_api(t_or_q,prompt,text,data):
                 )
     end = time.time()
     print("finish:",end-start)
+    print("model:",propaty.model)
+    print("@@@@@@@@@@@@@@@@@@@@@")
+    print(response.usage.completion_tokens)
+    print("@@@@@@@@@@@@@@@@@@@@@")
     text = response.choices[0].message.content
     return text, json.dumps(messages)
 
@@ -327,14 +331,14 @@ class GPTPropaty():
         else:
             model = self.col.question_model
         if model == 3:
-            self.model = "gpt-3.5-turbo-1106"
+            self.model = "gpt-3.5-turbo-0125"
         elif model == 4:
-            self.model = "gpt-4-1106-preview"
+            self.model = "gpt-4-0125-preview"
 
     def select_prompt(self,num,text,data):
         if num == 1:
             self.prompt = self.col.initial_text
-            self.text = data.question +"\n"+ text
+            self.text = "#User-provided\n"+data.question +"\n"+ text
         elif num == 2:
             self.prompt = self.col.second_text
             self.text = "#User-provided\n"+data.question+"\n"+text+"\n"+"#Daiary"+data.body
@@ -344,7 +348,7 @@ class GPTPropaty():
         elif num == 4:
             self.prompt = self.col.second_question
             # 最後のtextはanswerを使用
-            self.text = text
+            self.text = "#Records\n"+text
         else:
             pass
             # self.prompt = prompt5

@@ -1,7 +1,5 @@
 .env
-accounts/migrations
-chat/migratins
-diary/migrations
+*/migrations
 db.sqlite3
-comand.md
-public
+public/static/*
+local-test
