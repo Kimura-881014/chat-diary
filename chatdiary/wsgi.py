@@ -11,9 +11,16 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 import sys
+from pathlib import Path
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path)
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/..')
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chatdiary.settings.production')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chatdiary.settings.development')
 
 application = get_wsgi_application()
