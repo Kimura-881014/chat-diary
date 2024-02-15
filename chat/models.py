@@ -17,7 +17,7 @@ class ChatType(models.Model):
         return f"{self.id}: {self.group_name}"
     
 class TmpMsg(models.Model):
-    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    user = models.OneToOneField(User,on_delete=models.CASCADE,primary_key=True)
     count = models.PositiveIntegerField()
     title = models.CharField(max_length=255)
     body = models.TextField()
