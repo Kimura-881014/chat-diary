@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Data
+from accounts.models import User
 from .forms import EditForm
 
 from django.db.models import Q
@@ -39,9 +40,9 @@ class IndexView(LoginRequiredMixin,TemplateView):
 
         if 'search' in self.request.GET:
             search_word = self.request.GET.get('search')
-            context['data'] = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),user_id=user_id).order_by('posted_date').reverse()[0:]
+            context['data'] = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()[0:]
         else:
-            context['data'] = Data.objects.filter(user_id=user_id).order_by('posted_date').reverse()[0:]
+            context['data'] = Data.objects.filter(user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()[0:]
 
         context['id'] = user_id
 
@@ -58,7 +59,7 @@ class DetailView(LoginRequiredMixin,TemplateView):
         # user_id = (self.request.GET.get('id'))
         # index = int(self.request.GET.get('index'))
         col = Data.objects.get(id=index)
-        if col.user_id == user_id: # 見ようとしているcolのuseridがgetのidと等しいとき
+        if col.user.user_id == user_id: # 見ようとしているcolのuseridがgetのidと等しいとき
             context['data'] = col
             context['id'] = user_id
             context['row'] = len(col.body)/40 + 3
@@ -74,8 +75,8 @@ class EditView(LoginRequiredMixin,TemplateView):
         user_id = self.request.user.user_id
         context = super().get_context_data(**kwargs)
         col = Data.objects.get(id=index)
-        if col.user_id == user_id: # 修正するcolのuseridがgetのidと等しいとき
-            initial = {'user_id':user_id,
+        if col.user.user_id == user_id: # 修正するcolのuseridがgetのidと等しいとき
+            initial = {'user':col.user,
                        'title':col.title,
                        'posted_date':col.posted_date,
                        'body': col.body,
@@ -103,6 +104,8 @@ class EditView(LoginRequiredMixin,TemplateView):
                                             })
 
             return redirect("detail_page",index=index)
+        else: # 不正削除
+           return render(request, 'error.html')
     
 class MyDeleteView(LoginRequiredMixin,TemplateView):
     def get(self, request, index, *args, **kwargs):
@@ -110,7 +113,7 @@ class MyDeleteView(LoginRequiredMixin,TemplateView):
         # user_id = (self.request.GET.get('id'))
         # index = int(self.request.GET.get('index'))
         col = Data.objects.get(id=index)
-        if col.user_id == user_id: # 消そうとしているcolのuseridがgetのidと等しいとき
+        if col.user.user_id == user_id: # 消そうとしているcolのuseridがgetのidと等しいとき
             col.delete()
             url = reverse('top_page')
             parameters = urlencode({'page':1})

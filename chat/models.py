@@ -1,17 +1,7 @@
 from django.db import models
+from accounts.models import User
 
 # Create your models here.
-class TmpMsg(models.Model):
-    user_id = models.CharField(max_length=50,primary_key=True)
-    count = models.PositiveIntegerField()
-    title = models.CharField(max_length=255)
-    body = models.TextField()
-    question = models.TextField()
-    chat_type = models.IntegerField(default=1)
-    body_payload = models.TextField()
-    question_payload = models.TextField()
-
-
 class ChatType(models.Model):
     group_name = models.CharField(max_length=100)
     password = models.CharField(max_length=50)
@@ -25,3 +15,14 @@ class ChatType(models.Model):
 
     def __str__(self):
         return f"{self.id}: {self.group_name}"
+    
+class TmpMsg(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    count = models.PositiveIntegerField()
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    question = models.TextField()
+    chat_type = models.ForeignKey(ChatType,on_delete=models.PROTECT,default=1)
+    body_payload = models.TextField()
+    question_payload = models.TextField()
+

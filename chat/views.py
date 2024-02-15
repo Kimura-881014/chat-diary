@@ -123,14 +123,15 @@ def create_text_message(message,user_id,request):
 # TmpMsgをDataに保存して初期化する関数
 def save_data(user_id):
     try:
-        col = TmpMsg.objects.get(user_id=user_id)
-    except TmpMsg.DoesNotExist:
+        user = User.objects.get(user_id=user_id)
+        col = TmpMsg.objects.get(user=user)
+    except (User.DoesNotExist,TmpMsg.DoesNotExist):
         message = [{'type': 'text','text': '保存データがありません'}]
         message = add_quick_replay_see_diary(message)
         return message
     if col.title != "":
-        Data.objects.create(user_id=user_id,title=col.title,body=col.body,chat_type=col.chat_type)
-        TmpMsg.objects.update_or_create(user_id=user_id,
+        Data.objects.create(user=user,title=col.title,body=col.body,chat_type=col.chat_type)
+        TmpMsg.objects.update_or_create(user=user,
                                                 defaults={
                                                             'title':"",
                                                             'question':"",
@@ -168,7 +169,7 @@ def send_diary_url(user_id,request):
 # チャンネルを13個以上入るとクイックリプライで送信できないため13個以上のエラー処理を書く
 def send_chat_type(user_id):
     col = User.objects.get(user_id=user_id)
-    now_chat_type = TmpMsg.objects.get(user_id=user_id).chat_type
+    now_chat_type = TmpMsg.objects.get(user=col).chat_type.id
     chat_type_number_list = eval(col.chat_type)
     chat_type_query_list = list(ChatType.objects.filter(id__in=chat_type_number_list).values('id','group_name'))
 
@@ -190,8 +191,8 @@ def send_chat_type(user_id):
 
 def gpt_chat(user_id,message):
     try:
-        col = TmpMsg.objects.get(user_id=user_id)
-    except TmpMsg.DoesNotExist:
+        col = TmpMsg.objects.get(user=User.objects.get(user_id=user_id))
+    except (TmpMsg.DoesNotExist,User.DoesNotExist):
         col = NewChatMember(user_id)
     
     if col.count > week_max_number_of_times:
@@ -266,7 +267,7 @@ def gpt_chat(user_id,message):
                            {'type': 'text','text': answer2}]
 
         
-        TmpMsg.objects.update_or_create(user_id=user_id,
+        TmpMsg.objects.update_or_create(user=col.user,
                                             defaults=defaults)
         # message = [{'type': 'text','text': gpt_api(3,5,message,col)}]
         message = add_quick_replay(message)
@@ -278,7 +279,7 @@ def gpt_chat(user_id,message):
 def gpt_api(t_or_q,prompt,text,data):
     # model = select_model(model)
     # prompt = select_prompt(prompt)
-    propaty = GPTPropaty(data.chat_type)
+    propaty = GPTPropaty(data.chat_type.id)
     propaty.select_model(t_or_q)
     propaty.select_prompt(prompt,text,data)
     messages = [
@@ -301,16 +302,19 @@ def gpt_api(t_or_q,prompt,text,data):
 
 # やり直しの時のGPTAPI
 def re_gpt(t_or_q,payload,data):
-    propaty = GPTPropaty(data.chat_type)
+    propaty = GPTPropaty(data.chat_type.id)
     propaty.select_model(t_or_q)
     messages = json.loads(payload)
     print(messages)
     print("--------------------------------")
+    start = time.time()
     response = openai.chat.completions.create(
                     model = propaty.model,
                     messages = messages,
                     temperature=0.8
                 )
+    end = time.time()
+    print('seconds:',end-start,'[s]')
     text = response.choices[0].message.content
     return text
 
@@ -373,17 +377,17 @@ class LineMessage():
 
 class NewChatMember():
     def __init__(self,user_id):
-        self.user_id = user_id
         self.count = 0
         self.title = ""
         self.body = ""
-        self.chat_type = 1
+        self.chat_type = ChatType.objects.get(id=1)
         self.question = ""
         self.body_payload = ""
         self.que_payload = ""
         password = randompwd(20)
         user = User.objects.create_user(user_id,"", password)
         user.save()
+        self.user = user
 
 
 
@@ -430,11 +434,11 @@ def return_post_back(message,user_id):
         id = message_split[-2]
         group_name = message_split[-1]
         try:
-            col = TmpMsg.objects.get(user_id=user_id)
-            col.chat_type = int(id)
+            col = TmpMsg.objects.get(user=User.objects.get(user_id=user_id))
+            col.chat_type = ChatType.objects.get(id=id)
             col.save()
         except TmpMsg.DoesNotExist:
-            col = NewChatMember(user_id)
+            # col = NewChatMember(user_id)
             message = [{'type': 'text','text': '申し訳ありません一度normalで会話してくださいに変更しました。'}]
             return message
         message = [{'type': 'text','text': group_name+'に変更しました。'}]

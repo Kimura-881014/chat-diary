@@ -8,7 +8,7 @@
                 data-clarity-region="article">
                 <form action="." method="post">
                     {% csrf_token %}
-                    {{form.user_id.as_hidden}}
+                    {{form.user.as_hidden}}
                     {{form.chat_type.as_hidden}}
                     {{form.release.as_hidden}}
                     <strong>Title</strong>
