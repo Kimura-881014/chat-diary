@@ -179,6 +179,8 @@ def send_chat_type(user_id):
         group_name = i['group_name']
         if id == now_chat_type:
             now_chat_type = group_name
+        else:
+            now_chat_type = "過去に登録されていたチャットタイプ"
         action_list.append({"type":"action","action":{"type":"postback","label":group_name,
                                                       "data":"chabge_chat_type_to_"+str(id)+"_"+group_name,"displayText":group_name+"に変更"}})
     message = [{'type': 'text','text': "現在のチャットタイプは"+str(now_chat_type)+"です。\n以下から選択してください。"}]
@@ -191,7 +193,15 @@ def send_chat_type(user_id):
 
 def gpt_chat(user_id,message):
     try:
-        col = TmpMsg.objects.get(user=User.objects.get(user_id=user_id))
+        col = TmpMsg.objects.get(user__user_id=user_id)
+        start = time.perf_counter()
+        print("old",TmpMsg.objects.filter(user=User.objects.get(user_id=user_id)).query)
+        middle = time.perf_counter()
+        print("new",TmpMsg.objects.filter(user__user_id=user_id).query)
+        end = time.perf_counter()
+        # col = TmpMsg.objects.get(user=User.objects.get(user_id=user_id))
+        print("old:",middle-start)
+        print("old:",end-middle)
     except (TmpMsg.DoesNotExist,User.DoesNotExist):
         col = NewChatMember(user_id)
     
@@ -311,7 +321,7 @@ def re_gpt(t_or_q,payload,data):
     response = openai.chat.completions.create(
                     model = propaty.model,
                     messages = messages,
-                    temperature=0.8
+                    temperature=0.5
                 )
     end = time.time()
     print('seconds:',end-start,'[s]')

@@ -1,0 +1,46 @@
+{% extends "base.html" %}{% block content %}
+<div class="my-chat-type">
+    <form action="." method="post">
+        {% csrf_token %}
+        <table>
+            <thead>
+                <tr>
+                    <th>select</th>
+                    <th>id</th>
+                    <th>chat-name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in my_chat_type %}
+                    <tr>
+                        <td><input type="checkbox" name="check[]" value={{i.id}} checked="checked"></td>
+                        <td>{{i.id}}</td>
+                        <td>{{i.group_name}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>select</th>
+                    <th>id</th>
+                    <th>chat-name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for j in release_chat_type %}
+                    <tr>
+                        <td><input type="checkbox" name="check[]" value={{j.id}}></td>
+                        <td>{{j.id}}</td>
+                        <td>{{j.group_name}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <button type="submit">送信する</button>
+    </form> 
+</div>
+
+
+{% endblock %}

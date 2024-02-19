@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Data
+from chat.models import ChatType
 from accounts.models import User
 from .forms import EditForm
 
@@ -121,3 +122,31 @@ class MyDeleteView(LoginRequiredMixin,TemplateView):
             return redirect(f'{url}?{parameters}')
         else: # 不正削除
            return render(request, 'error.html')
+        
+
+
+
+class ChatTypeView(LoginRequiredMixin,TemplateView):
+    template_name = 'chat-type.html'
+    # アクセスしてきたときにhtmlと入力フォームを返す
+    def get_context_data(self, *args, **kwargs):
+        user_id = self.request.user.user_id
+        context = super().get_context_data(**kwargs)
+        col = User.objects.get(user_id=user_id)
+        chat_type_number_list = eval(col.chat_type)
+        chat_type_query_list = list(ChatType.objects.filter(id__in=chat_type_number_list).values('id','group_name'))
+        context['my_chat_type'] = chat_type_query_list
+        context['release_chat_type'] = ChatType.objects.filter(~Q(id__in=chat_type_number_list),release=True)[0:5]
+        return context
+
+    
+    # editpageで修正ボタンが押されてPOST requestが飛んできたとき
+    def post(self, request, *args, **kwargs):
+        user_id = self.request.user.user_id
+        selected_values = request.POST.getlist('check[]')
+        col = User.objects.get(user_id=user_id)
+        col.chat_type = str(request.POST.getlist('check[]'))
+        col.save()
+        print(selected_values)
+        print(type(selected_values))
+        return redirect("top_page")

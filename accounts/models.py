@@ -45,7 +45,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(_("staff status"), default=False)
     is_active = models.BooleanField(_("active"), default=True)
     is_manager = models.CharField(_("manager_number"),max_length=100,blank=True)
-    chat_type = models.CharField(_("chattype"),max_length=100,default="[1,2]")
+    chat_type = models.CharField(_("chattype"),max_length=100,default="['1']")
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
     objects = UserManager()
