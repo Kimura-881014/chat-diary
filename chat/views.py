@@ -80,7 +80,7 @@ def create_text_message(message,user_id,request):
     elif message == '日記を見る':
         message = send_diary_url(user_id,request)
 
-    elif message == 'チャットタイプの変更':
+    elif message == 'チャットタイプを変更':
         message = send_chat_type(user_id)
 
     elif message == 'テスト':
@@ -159,7 +159,12 @@ def send_diary_url(user_id,request):
                         "quickReply": {"items": [{"type": "action",
                                                 "action": {"type": "uri",
                                                             "label": "ここをクリック",
-                                                            "uri": url}}]}}]
+                                                            "uri": url}},
+                                                {"type": "action",
+                                                "action": {"type": "message",
+                                                    "label": "チャットタイプを変更",
+                                                    "text": "チャットタイプを変更"}}
+                                                            ]}}]
     except User.DoesNotExist:
         message = [{'type': 'text','text': '保存データがありません*1'}]
         message = add_quick_replay_see_diary(message)
@@ -177,13 +182,17 @@ def send_chat_type(user_id):
     for i in chat_type_query_list:
         id = i['id']
         group_name = i['group_name']
+        
         if id == now_chat_type:
-            now_chat_type = group_name
-        else:
-            now_chat_type = "過去に登録されていたチャットタイプ"
+            now_chat_type_name = group_name
+        
         action_list.append({"type":"action","action":{"type":"postback","label":group_name,
                                                       "data":"chabge_chat_type_to_"+str(id)+"_"+group_name,"displayText":group_name+"に変更"}})
-    message = [{'type': 'text','text': "現在のチャットタイプは"+str(now_chat_type)+"です。\n以下から選択してください。"}]
+    try:
+        now_chat_type_name
+    except NameError:
+        now_chat_type_name = "過去に登録されていたチャットタイプ"
+    message = [{'type': 'text','text': "現在のチャットタイプは"+str(now_chat_type_name)+"です。\n以下から選択してください。"}]
 
     message[-1]['quickReply'] = {"items":action_list}
 
@@ -409,7 +418,7 @@ def add_quick_replay_see_diary(message):
                                             {"type": "action",
                                         "action": {"type": "message",
                                                     "label": "チャットタイプを変更",
-                                                    "text": "チャットタイプの変更"}}]}
+                                                    "text": "チャットタイプを変更"}}]}
     return message
 
 
@@ -429,7 +438,7 @@ def add_quick_replay(message):
                                            {"type": "action",
                                         "action": {"type": "message",
                                                     "label": "チャットタイプを変更",
-                                                    "text": "チャットタイプの変更"}}]}
+                                                    "text": "チャットタイプを変更"}}]}
     return message
 
 
