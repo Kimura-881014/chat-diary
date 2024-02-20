@@ -15,8 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from chat.views import PasswordChangeDoneView, PasswordResetView
 
 urlpatterns = [
+    path('admin/chat/chattype/<int:index>/password/', PasswordResetView.as_view(),name="change_password"),
+    path('admin/chat/chattype/password_changed/', PasswordChangeDoneView.as_view(),name="password_change_done"),
     path('admin/', admin.site.urls),
     path('chat/',include('chat.urls')),
     path('diary/', include('diary.urls')),

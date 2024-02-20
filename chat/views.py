@@ -6,13 +6,16 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-from django.shortcuts import render
-from django.urls import reverse
+from django.shortcuts import render, redirect
+from django.urls import reverse, reverse_lazy
+
 
 from django.http import HttpResponse
 import urllib.request
 import json
 from django.views.decorators.csrf import csrf_exempt
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 from .models import TmpMsg, ChatType
@@ -22,8 +25,13 @@ from accounts.models import User
 
 import openai
 
+from .forms import SetPasswordForm
+
 # Create your views here.
 from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
+from django.utils.translation import gettext as _
+from django.contrib.auth.hashers import make_password
 
 class IndexView(TemplateView):
     template_name = 'test.html'
@@ -465,3 +473,45 @@ def return_post_back(message,user_id):
     else:
         message = [{'type': 'text','text': 'error in change_chat_type'}]
     return message
+
+
+
+
+
+# adminサイトのChatTypeパスワード変更
+class PasswordContextMixin:
+    extra_context = None
+ 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({"title": self.title, **(self.extra_context or {})})
+        return context
+        
+
+class PasswordResetView(FormView):
+    template_name = 'my_password_change_form.html'
+    form_class = SetPasswordForm
+    success_url = reverse_lazy('password_change_done')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['index'] = self.kwargs['index']  # Assuming you pass 'index' as a parameter in the URL
+        return kwargs
+
+    def form_valid(self, form):
+        index = form.index  # Access the index from the form
+        # You can perform any additional processing or validation here if needed
+        # For example, you can update the user's password and log them in
+        col = ChatType.objects.get(id=index)
+        col.password = make_password(form.cleaned_data['new_password1'])
+        col.save()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        # Handle invalid form submission here if needed
+        return super().form_invalid(form)
+    
+
+class PasswordChangeDoneView(PasswordContextMixin, TemplateView):
+    template_name = "my_password_change_done.html"
+    title = _("Password change successful")

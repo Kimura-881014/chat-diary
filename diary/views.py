@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 # Create your views here.
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.hashers import check_password
 from .models import Data
 from chat.models import ChatType
 from accounts.models import User
@@ -140,13 +141,17 @@ class ChatTypeView(LoginRequiredMixin,TemplateView):
         return context
 
     
-    # editpageで修正ボタンが押されてPOST requestが飛んできたとき
+    # 送信ボタンが押されてPOST requestが飛んできたとき
     def post(self, request, *args, **kwargs):
+        chat_list = request.POST.getlist('check[]')
+        if request.POST.get('no-release-pw') != "":
+            group_name = request.POST.get('no-release-name')
+            password = request.POST.get('no-release-pw')
+            col = ChatType.objects.get(group_name=group_name)
+            if check_password(password,col.password):
+                chat_list.append(str(col.id))
         user_id = self.request.user.user_id
-        selected_values = request.POST.getlist('check[]')
         col = User.objects.get(user_id=user_id)
-        col.chat_type = str(request.POST.getlist('check[]'))
+        col.chat_type = str(chat_list)
         col.save()
-        print(selected_values)
-        print(type(selected_values))
         return redirect("top_page")

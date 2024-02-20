@@ -3,8 +3,9 @@ from accounts.models import User
 
 # Create your models here.
 class ChatType(models.Model):
-    group_name = models.CharField(max_length=100)
-    password = models.CharField(max_length=50)
+    id = models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')
+    group_name = models.CharField(max_length=100,unique=True)
+    password = models.CharField(max_length=100)
     initial_text = models.TextField()
     second_text = models.TextField()
     initial_question = models.TextField()
