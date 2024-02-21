@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from django.contrib import messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -145,3 +146,18 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = PARENT_DIR/'chat-diary/public/media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MESSAGE_TAGS = {
+    messages.INFO: 'my-alert-info',
+    messages.SUCCESS: 'my-alert-success',
+    messages.WARNING: 'my-alert-warning',
+    messages.ERROR: 'my-alert-danger',
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # send_mailのfromがNoneの場合自動で入る。
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']

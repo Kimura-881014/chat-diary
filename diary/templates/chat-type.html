@@ -1,6 +1,30 @@
 {% extends "base.html" %}{% block content %}
+<script>
+    // ページが読み込まれた後に実行される関数
+    document.addEventListener('DOMContentLoaded', function () {
+        // 一定時間後に要素を非表示にする関数
+        function hideElement() {
+            var element = document.getElementById('my_del_id'); // この行でIDを変更してください
+            if (element) {
+                element.style.display = 'none';
+            }
+        }
+
+        // 5000ミリ秒（5秒）後にhideElement関数を実行
+        setTimeout(hideElement, 5000); // この行で時間を変更してください
+    });
+</script>
 <div id="content" class="content cf">
     <main id="main" class="main" itemscope="" itemtype="https://schema.org/Blog">
+        {% if messages %}
+        <div>
+            {% for message in messages %}
+            <div {% if message.tags %}class="{{ message.tags }}"{% endif %} id="my_del_id">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         <form action="." method="post">
             {% csrf_token %}
             <h2>現在登録されているチャットタイプ</h2>
@@ -54,6 +78,7 @@
             </details><br>
             <button type="submit" class="btn btn-outline-success">登録する</button>
         </form>
+        
     </main>
 </div>
 

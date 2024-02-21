@@ -56,6 +56,6 @@ class SetPasswordForm(forms.Form):
                     self.error_messages["password_mismatch"],
                     code="password_mismatch",
                 )
-        # password_validation.validate_password(password2, self.user)
+        password_validation.validate_password(password2)
         return password2
  

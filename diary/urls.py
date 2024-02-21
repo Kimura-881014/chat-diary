@@ -1,4 +1,4 @@
-from .views import LoginView, IndexView, DetailView, MyDeleteView, EditView, ChatTypeView
+from .views import LoginView, IndexView, DetailView, MyDeleteView, EditView, ChatTypeView, MailView
 from django.urls import path
 
 urlpatterns = [
@@ -8,6 +8,7 @@ urlpatterns = [
     path('<int:index>/',DetailView.as_view(), name="detail_page"),
     path('<int:index>/edit/',EditView.as_view(), name="edit"),
     path('<int:index>/delete/',MyDeleteView.as_view(), name="delete"),
+    path('mail/',MailView.as_view(), name="mail"),
 ]
 # urlpatterns = [
 #     path('<slug:user_id>/', IndexView.as_view(),name="top_page"),

@@ -11,9 +11,11 @@ from django.contrib.auth.hashers import check_password
 from .models import Data
 from chat.models import ChatType
 from accounts.models import User
-from .forms import EditForm
+from .forms import EditForm, MailForm
 
 from django.db.models import Q
+from django.contrib import messages
+from django.core.mail import send_mail
 
 class LoginView(TemplateView):
     def get(self, request,*args, **kwargs):
@@ -91,7 +93,9 @@ class EditView(LoginRequiredMixin,TemplateView):
             return context
         else: # 不正アクセス
            template_name = 'error.html'
-    
+
+
+######### form['user'] == self.request.user####################
     # editpageで修正ボタンが押されてPOST requestが飛んできたとき
     def post(self, request, index, *args, **kwargs):
         user_id = self.request.user.user_id
@@ -150,8 +154,46 @@ class ChatTypeView(LoginRequiredMixin,TemplateView):
             col = ChatType.objects.get(group_name=group_name)
             if check_password(password,col.password):
                 chat_list.append(str(col.id))
+            else:
+                messages.add_message(request, messages.WARNING, "パスワードが違います")
+        if len(chat_list) < 14:
+            user_id = self.request.user.user_id
+            col = User.objects.get(user_id=user_id)
+            col.chat_type = str(chat_list)
+            col.save()
+            messages.add_message(request, messages.SUCCESS, "登録されました")
+            return redirect("chat_type")
+        else:
+            messages.add_message(request, messages.ERROR, "14個以上は登録できません")
+            return redirect("chat_type")
+        
+
+
+class MailView(LoginRequiredMixin,TemplateView):
+    template_name = 'mail.html'
+    # アクセスしてきたときにhtmlと入力フォームを返す
+    def get_context_data(self, *args, **kwargs):
         user_id = self.request.user.user_id
-        col = User.objects.get(user_id=user_id)
-        col.chat_type = str(chat_list)
-        col.save()
-        return redirect("top_page")
+        form = MailForm()
+        context = super().get_context_data(**kwargs)
+        context['form'] = form
+        return context
+
+    
+    # 送信ボタンが押されてPOST requestが飛んできたとき
+    def post(self, request, *args, **kwargs):
+        form = MailForm(request.POST)
+        if form.is_valid():
+            sender = form.cleaned_data['sender']
+            message = form.cleaned_data['message']
+            anonymas = form.cleaned_data['anonymas']
+            title = "【chat-diary】"
+            if anonymas == False:
+                title = title + str(self.request.user.user_id)+"さんからのコメント"
+            message = message + '\n\n返信先:' + str(sender)
+            send_mail(title,message,sender,['kimura.881014@gmail.com'],fail_silently=False)
+            return redirect("top_page")
+        else: # 不正削除
+           return render(request, 'error.html')
+
+        # return redirect("chat_type")

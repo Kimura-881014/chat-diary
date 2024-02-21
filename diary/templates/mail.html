@@ -1,0 +1,43 @@
+{% extends "base.html" %}{% block content %}
+<div id="content" class="content cf">
+    <div id="content-in" class="content-in wrap">
+        <main id="main" class="main" style="width:90%; margin: 0 auto;" itemscope="" itemtype="https://schema.org/Blog">
+            <article id="post-26"
+                class="article post-26 post type-post status-publish format-standard hentry category-diary-post"
+                itemscope="itemscope" itemprop="blogPost" itemtype="https://schema.org/BlogPosting"
+                data-clarity-region="article">
+                <form action="." method="post">
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <small>チェックが付いているとこのメッセージは匿名化されます。<br>
+                        新しいチャットタイプを作ってグループを運営したい場合はメールアドレスを記載し、このチェックを外して相談してください。</small><br><br>
+                    <div class="field">
+                        <div class="contorol">
+                            <button class="btn btn-outline-primary">送信</button>
+                        </div>
+                    </div>
+                </form>
+
+
+                <div class="publisher" itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
+                    <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
+                        <meta itemprop="width" content="206">
+                        <meta itemprop="height" content="60">
+                    </div>
+                </div>
+                </footer>
+
+            </article>
+
+            <div class="under-entry-content">
+
+                <div id="pager-post-navi" class="pager-post-navi post-navi-default cf">
+                </div><!-- /.pager-post-navi -->
+
+
+            </div>
+        </main>
+
+    </div>
+</div>
+{% endblock %}
