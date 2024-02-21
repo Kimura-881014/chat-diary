@@ -13,9 +13,17 @@ from chat.models import ChatType
 from accounts.models import User
 from .forms import EditForm, MailForm
 
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
 from django.db.models import Q
 from django.contrib import messages
 from django.core.mail import send_mail
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv_path = os.path.join(BASE_DIR, '.env')
+load_dotenv(dotenv_path)
 
 class LoginView(TemplateView):
     def get(self, request,*args, **kwargs):
@@ -191,7 +199,8 @@ class MailView(LoginRequiredMixin,TemplateView):
             if anonymas == False:
                 title = title + str(self.request.user.user_id)+"さんからのコメント"
             message = message + '\n\n返信先:' + str(sender)
-            send_mail(title,message,sender,['kimura.881014@gmail.com'],fail_silently=False)
+            send_mail(title,message,sender,[os.environ['EMAIL_HOST_USER'],os.environ['EMAIL_STUFF_USER']],fail_silently=False)
+            # send_mail(title,message,sender,[os.environ['EMAIL_STUFF_USER']],fail_silently=False)
             return redirect("top_page")
         else: # 不正削除
            return render(request, 'error.html')
