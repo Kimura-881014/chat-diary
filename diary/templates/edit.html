@@ -24,10 +24,9 @@
                     </div>
                 </form>
 
-                <a href="{% url 'delete' data.id %}" rel="noopener" target="_top" class="btn btn-outline-danger">削除</a>
+                <!-- <a href="{% url 'delete' data.id %}" rel="noopener" target="_top" class="btn btn-outline-danger">削除</a> -->
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#DeleteModal">削除</button>
                 <a href="{% url 'detail_page' data.id %}" rel="noopener" target="_top" class="btn btn-outline-secondary">戻る</a>
-
-
                 <div class="publisher" itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
                     <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
                         <meta itemprop="width" content="206">
@@ -50,4 +49,6 @@
 
     </div>
 </div>
+<!-- モーダルの設定 -->
+{% include 'delete.html' %}
 {% endblock %}

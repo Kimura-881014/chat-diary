@@ -149,7 +149,7 @@ class ChatTypeView(LoginRequiredMixin,TemplateView):
         chat_type_number_list = eval(col.chat_type)
         chat_type_query_list = list(ChatType.objects.filter(id__in=chat_type_number_list).values('id','group_name'))
         context['my_chat_type'] = chat_type_query_list
-        context['release_chat_type'] = ChatType.objects.filter(~Q(id__in=chat_type_number_list),release=True)[0:5]
+        context['release_chat_type'] = ChatType.objects.filter(~Q(id__in=chat_type_number_list),release=True)
         return context
 
     

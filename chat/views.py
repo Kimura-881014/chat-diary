@@ -211,14 +211,8 @@ def send_chat_type(user_id):
 def gpt_chat(user_id,message):
     try:
         col = TmpMsg.objects.get(user__user_id=user_id)
-        start = time.perf_counter()
-        print("old",TmpMsg.objects.filter(user=User.objects.get(user_id=user_id)).query)
-        middle = time.perf_counter()
-        print("new",TmpMsg.objects.filter(user__user_id=user_id).query)
-        end = time.perf_counter()
         # col = TmpMsg.objects.get(user=User.objects.get(user_id=user_id))
-        print("old:",middle-start)
-        print("old:",end-middle)
+
     except (TmpMsg.DoesNotExist,User.DoesNotExist):
         col = NewChatMember(user_id)
     
