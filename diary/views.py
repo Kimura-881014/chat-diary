@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 # Create your views here.
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 from django.contrib.auth.hashers import check_password
 from .models import Data
 from chat.models import ChatType
@@ -44,18 +45,24 @@ class IndexView(LoginRequiredMixin,TemplateView):
     def get_context_data(self, **kwargs):
         user_id = self.request.user.user_id
         context = super().get_context_data(**kwargs)
-        # user_id = (self.request.GET.get('id'))
         if 'page' in self.request.GET:
             page = int(self.request.GET.get('page'))
         else:
-            pass
+            page = 1
 
         if 'search' in self.request.GET:
             search_word = self.request.GET.get('search')
-            context['data'] = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()[0:]
+            data = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()
+            url = "&search="+search_word
         else:
-            context['data'] = Data.objects.filter(user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()[0:]
-
+            data = Data.objects.filter(user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()
+            url = ""
+        data_page = Paginator(data, 1)
+        data_p = data_page.get_page(page)
+        data_list = data_p.paginator.get_elided_page_range(page)
+        context['data_p'] = data_p
+        context['data_list'] = data_list
+        context['page_url_para'] = url
         context['id'] = user_id
 
         return context
@@ -111,10 +118,12 @@ class EditView(LoginRequiredMixin,TemplateView):
         if form.is_valid():
             title = form['title'].value
             body = form['body'].value
+            posted_date = form.cleaned_data['posted_date']
             Data.objects.update_or_create(id=index,
                                           defaults={
                                               'title':title,
-                                              'body':body
+                                              'body':body,
+                                              'posted_date':posted_date
                                             })
 
             return redirect("detail_page",index=index)

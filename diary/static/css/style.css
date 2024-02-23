@@ -13537,3 +13537,16 @@ pre {
   background-color: #f2dede;
   border-color: #ebccd1;
 }
+
+.link-footer {
+  background-color: #CCCCCC; /* 背景色を灰色に設定 */
+  padding: 20px; /* 適切なパディングを設定 */
+  color: #fff; /* テキストカラーを白に設定 */
+  display: flex;
+  justify-content: space-evenly; /* リンクを均等に配置する */
+}
+
+.link-footer a {
+  color: #000; /* リンクのテキストカラーを白に設定 */
+  text-decoration: none; /* リンクの下線を削除 */
+}

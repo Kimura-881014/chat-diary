@@ -307,15 +307,15 @@ def gpt_api(t_or_q,prompt,text,data):
                 {"role": "system", "content": propaty.prompt},
                 {"role": "user", "content": propaty.text}
                 ]
-    print("--------------------------------")
-    print(messages)
-    print("--------------------------------")
+    # print("--------------------------------")
+    # print(messages)
+    # print("--------------------------------")
     response = openai.chat.completions.create(
                     model = propaty.model,
                     messages = messages,
                     temperature=0
                 )
-    print("model:",propaty.model)
+    # print("model:",propaty.model)
     text = response.choices[0].message.content
     return text, json.dumps(messages)
 
@@ -326,8 +326,8 @@ def re_gpt(t_or_q,payload,data):
     propaty = GPTPropaty(data.chat_type.id)
     propaty.select_model(t_or_q)
     messages = json.loads(payload)
-    print(messages)
-    print("--------------------------------")
+    # print(messages)
+    # print("--------------------------------")
     start = time.time()
     response = openai.chat.completions.create(
                     model = propaty.model,
@@ -335,7 +335,7 @@ def re_gpt(t_or_q,payload,data):
                     temperature=0.5
                 )
     end = time.time()
-    print('seconds:',end-start,'[s]')
+    # print('seconds:',end-start,'[s]')
     text = response.choices[0].message.content
     return text
 

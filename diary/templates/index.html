@@ -6,7 +6,7 @@
     <main id="main" class="main" itemscope="" itemtype="https://schema.org/Blog">
       <div id="list" class="list ect-vertical-card-3 ect-vertical-card ect-3-columns front-page-type-index">
         <!-- 修正箇所 -->
-        {% for col in data %}
+        {% for col in data_p %}
         <a href="{% url 'detail_page' col.id %}" class="entry-card-wrap a-wrap border-element cf" title="何やったか"
           rel="noreferrer" target="_top" aria-label="日記
 何やったか
@@ -75,4 +75,36 @@
   </div>
 
 </div>
+<nav aria-label="ページ送り">
+  <ul class="pagination">
+<!--　左端マークの処理（<<マークの設定と選択ページが左端（１）ならばリンクを外す）-->   
+  {% if  data_p.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{data_p.previous_page_number}}{{page_url_para}}">&laquo;</a></li>
+  {% else %}
+      <li class="page-item disabled"><a class="page-link" href='#'>&laquo;</a></li>
+  {% endif %}
+
+<!-- data_listはview.pyでpaginator.get_elided_page_rangeをつかってlistを作ったやつを渡してきてる Django3.2以降で有効-->
+  {% for i in data_list %} 
+<!-- 選択ページならば、activeにする -->
+      {% if  data_p.number == i %}
+          <li class="page-item active"><a class="page-link" href="?page={{i}}{{page_url_para}}">{{i}}</a></li>
+<!-- マークがELLIPSISならば、リンクを外す 　これをやらないとリンクが生きててクリックするとエラーになりますよ-->
+      {% elif i == data_p.paginator.ELLIPSIS %}
+          <li class="page-item disabled"><a class="page-link" href='#'>{{i}}</a></li>
+<!--　リンクをはる -->
+      {% else %}
+          <li class="page-item"><a class="page-link" href="?page={{i}}{{page_url_para}}">{{i}}</a></li>
+      {% endif %}
+  {% endfor %}
+
+<!--　右端マークの処理（<<マークの設定と選択ページが右端（最終ページ数）ならばリンクを外す）-->   
+  {% if  data_p.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{data_p.next_page_number}}{{page_url_para}}">&raquo;</a></li>
+  {% else %}
+      <li class="page-item disabled"><a class="page-link" href='#'>&raquo;</a></li>
+  {% endif %}
+  </ul>
+</nav>
+
 {% endblock %}
