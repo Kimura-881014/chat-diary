@@ -45,7 +45,9 @@
                         </div>
 
                     </div>
-                    <a href="{% url 'edit' data.id %}" rel="noopener" target="_top" class="btn btn-outline-primary">修正</a>
+                    {% if  editable %}
+                        <a href="{% url 'edit' data.id %}" rel="noopener" target="_top" class="btn btn-outline-primary">修正</a>
+                    {% endif %}
                     <!-- <footer class="article-footer entry-footer">　-->
 
 
@@ -73,14 +75,20 @@
         <div id="sidebar" class="sidebar nwa cf" role="complementary">
             <div id="sidebar-scroll" class="sidebar-scroll">
                 <aside id="search-2" class="widget widget-sidebar widget-sidebar-scroll widget_search">
-                    <form class="search-box input-box" method="get" action="{% url 'top_page' %}" rel="noopener"
-                        target="_top">
+                    <form class="search-box input-box" method="get" action="{% url 'top_page' %}" rel="noopener" target="_top">
                         <input type="hidden" name="page" value=1>
-                        <input type="text" placeholder="サイト内を検索" name="search" class="search-edit" aria-label="input"
-                            value="">
+                        <input type="text" placeholder="自分の日記を検索" name="search" class="search-edit" aria-label="input" value="">
+                        <input type="hidden" name="release" value=False>
                         <button type="submit" class="search-submit" aria-label="button"><span class="fa fa-search"
-                                aria-hidden="true"></span></button>
-                    </form>
+                            aria-hidden="true"></span></button>
+                      </form>
+                      <form class="search-box input-box" method="get" action="{% url 'top_page' %}" rel="noopener" target="_top">
+                        <input type="hidden" name="page" value=1>
+                        <input type="text" placeholder="公開されている日記を検索" name="search" class="search-edit" aria-label="input" value="">
+                        <input type="hidden" name="release" value=True>
+                        <button type="submit" class="search-submit" aria-label="button"><span class="fa fa-search"
+                            aria-hidden="true"></span></button>
+                      </form>
                 </aside>
                 <!-- <aside id="archives-2" class="widget widget-sidebar widget-sidebar-scroll widget_archive">
       <h3 class="widget-sidebar-scroll-title widget-title">アーカイブ</h3>

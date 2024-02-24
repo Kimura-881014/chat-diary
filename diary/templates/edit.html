@@ -8,15 +8,17 @@
                 data-clarity-region="article">
                 <form action="." method="post">
                     {% csrf_token %}
-                    {{form.user.as_hidden}}
-                    {{form.chat_type.as_hidden}}
-                    {{form.release.as_hidden}}
-                    <strong>Title</strong>
+                    <strong>Title:</strong>
                     {{form.title}}
-                    <small>text</small>
+                    <strong>Text:</strong>
                     {{form.body}}
-                    <small>time</small>
+                    <br><br>
+                    <strong>Time:</strong>
                     {{form.posted_date}}
+                    <br>
+                    <strong>Release:</strong>
+                    {{form.release}}
+                    <br><br>
                     <div class="field">
                         <div class="contorol">
                             <button class="btn btn-outline-success">修正</button>

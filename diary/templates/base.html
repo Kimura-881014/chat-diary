@@ -10101,13 +10101,20 @@
     </label>
         <label class="display-none" id="search-menu-close" for="search-menu-input"></label>
         <div id="search-menu-content" class="search-menu-content">
-          <form class="search-box input-box" method="get"
-            action="{% url 'top_page' %}"
-            rel="noopener" target="_top">
-          <input type="hidden" name="page" value=1 >
-          <input type="text" placeholder="サイト内を検索" name="search" class="search-edit" aria-label="input" value="">
-          <button type="submit" class="search-submit" aria-label="button"><span class="fa fa-search" aria-hidden="true"></span></button>
-        </form>
+          <form class="search-box input-box" method="get" action="{% url 'top_page' %}" rel="noopener" target="_top">
+            <input type="hidden" name="page" value=1>
+            <input type="text" placeholder="自分の日記を検索" name="search" class="search-edit" aria-label="input" value="">
+            <input type="hidden" name="release" value=False>
+            <button type="submit" class="search-submit" aria-label="button"><span class="fa fa-search"
+                aria-hidden="true"></span></button>
+          </form>
+          <form class="search-box input-box" method="get" action="{% url 'top_page' %}" rel="noopener" target="_top">
+            <input type="hidden" name="page" value=1>
+            <input type="text" placeholder="公開されている日記を検索" name="search" class="search-edit" aria-label="input" value="">
+            <input type="hidden" name="release" value=True>
+            <button type="submit" class="search-submit" aria-label="button"><span class="fa fa-search"
+                aria-hidden="true"></span></button>
+          </form>
         </div>
       </li>
 

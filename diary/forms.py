@@ -6,6 +6,7 @@ class EditForm(forms.ModelForm):
     class Meta:
         model = Data
         fields = "__all__"
+        exclude = ["user","chat_type"]
         widgets = {
             'posted_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}, format='%Y-%m-%dT%H:%M:00')
         }

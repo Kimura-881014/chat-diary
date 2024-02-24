@@ -52,8 +52,14 @@ class IndexView(LoginRequiredMixin,TemplateView):
 
         if 'search' in self.request.GET:
             search_word = self.request.GET.get('search')
-            data = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()
-            url = "&search="+search_word
+            release = self.request.GET.get('release')
+            if release=="True":
+                print('True')
+                data = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),release=True).order_by('posted_date').reverse()
+            else:
+                print('False')
+                data = Data.objects.filter(Q(title__contains = search_word) | Q(body__contains = search_word),user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()
+            url = "&search="+search_word+"&release="+release
         else:
             data = Data.objects.filter(user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()
             url = ""
@@ -82,19 +88,29 @@ class DetailView(LoginRequiredMixin,TemplateView):
             context['data'] = col
             context['id'] = user_id
             context['row'] = len(col.body)/40 + 3
+            context['editable'] = True
             return context
-        else: # 不正アクセス
+        elif col.release == True:
+            context['data'] = col
+            context['id'] = user_id
+            context['row'] = len(col.body)/40 + 3
+            context['editable'] = False
+            return context
+
+        else: # 不正アクセス　ここ
            template_name = 'error.html'
+
 
 
 class EditView(LoginRequiredMixin,TemplateView):
     template_name = 'edit.html'
     # アクセスしてきたときにhtmlと入力フォームを返す
     def get_context_data(self, index, *args, **kwargs):
-        user_id = self.request.user.user_id
+        user = self.request.user.user_id
         context = super().get_context_data(**kwargs)
         col = Data.objects.get(id=index)
-        if col.user.user_id == user_id: # 修正するcolのuseridがgetのidと等しいとき
+        if col.user == user: # 修正するcolのuseridがgetのidと等しいとき
+            print("here")
             initial = {'user':col.user,
                        'title':col.title,
                        'posted_date':col.posted_date,
@@ -103,32 +119,35 @@ class EditView(LoginRequiredMixin,TemplateView):
                        'release':col.release}
             form = EditForm(initial=initial)
             context['data'] = col
-            context['id'] = user_id
+            # context['id'] = user_id
             context['form'] = form
             return context
-        else: # 不正アクセス
-           template_name = 'error.html'
+        else: # 不正アクセス ここ
+            template_name = 'error.html'
 
 
 ######### form['user'] == self.request.user####################
     # editpageで修正ボタンが押されてPOST requestが飛んできたとき
     def post(self, request, index, *args, **kwargs):
-        user_id = self.request.user.user_id
-        form = EditForm(request.POST)
-        if form.is_valid():
-            title = form['title'].value
-            body = form['body'].value
-            posted_date = form.cleaned_data['posted_date']
-            Data.objects.update_or_create(id=index,
-                                          defaults={
-                                              'title':title,
-                                              'body':body,
-                                              'posted_date':posted_date
-                                            })
+        user = self.request.user
+        col = Data.objects.get(id=index)
+        if col.user == user:
+            form = EditForm(request.POST)
+            if form.is_valid():
+                title = form.cleaned_data['title']
+                body = form.cleaned_data['body']
+                posted_date = form.cleaned_data['posted_date']
+                release = form.cleaned_data['release']
 
-            return redirect("detail_page",index=index)
-        else: # 不正削除
-           return render(request, 'error.html')
+                col.title = title
+                col.body = body
+                col.posted_date = posted_date
+                col.release = release
+                col.save()
+
+                return redirect("detail_page",index=index)
+        # else: # 不正削除
+        return render(request, 'error.html')
     
 class MyDeleteView(LoginRequiredMixin,TemplateView):
     def get(self, request, index, *args, **kwargs):
