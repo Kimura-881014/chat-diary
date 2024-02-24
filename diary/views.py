@@ -106,7 +106,7 @@ class EditView(LoginRequiredMixin,TemplateView):
     template_name = 'edit.html'
     # アクセスしてきたときにhtmlと入力フォームを返す
     def get_context_data(self, index, *args, **kwargs):
-        user = self.request.user.user_id
+        user = self.request.user
         context = super().get_context_data(**kwargs)
         col = Data.objects.get(id=index)
         if col.user == user: # 修正するcolのuseridがgetのidと等しいとき
