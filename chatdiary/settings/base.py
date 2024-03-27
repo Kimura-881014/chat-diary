@@ -137,6 +137,7 @@ STATIC_ROOT = PARENT_DIR/'chat-diary/public/static'
 STATICFILES_DIRS = (
     [
         os.path.join(BASE_DIR, "diary/static/css/"),
+        os.path.join(BASE_DIR, "diary/static/image/"),
     ]
 )
 # Default primary key field type

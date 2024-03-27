@@ -24,6 +24,7 @@ from accounts.models import User
 
 
 import openai
+import anthropic
 
 from .forms import SetPasswordForm
 
@@ -54,6 +55,10 @@ HEADER = {
     'Authorization': 'Bearer ' + ACCESSTOKEN
 }
 
+client = anthropic.Anthropic(
+    # もし環境変数でAPIキーをセットできなければここで指定:
+    # api_key="..."
+)
 
 
 @csrf_exempt
@@ -138,7 +143,7 @@ def save_data(user_id):
         message = add_quick_replay_see_diary(message)
         return message
     if col.title != "":
-        Data.objects.create(user=user,title=col.title,body=col.body,chat_type=col.chat_type)
+        Data.objects.create(user=user,title=col.title,body=col.body,chat_type=col.chat_type,image_url=col.image_url)
         TmpMsg.objects.update_or_create(user=user,
                                                 defaults={
                                                             'title':"",
@@ -303,20 +308,31 @@ def gpt_api(t_or_q,prompt,text,data):
     propaty = GPTPropaty(data.chat_type.id)
     propaty.select_model(t_or_q)
     propaty.select_prompt(prompt,text,data)
+    # messages = [
+    #             {"role": "system", "content": propaty.prompt},
+    #             {"role": "user", "content": propaty.text}
+    #             ]
     messages = [
-                {"role": "system", "content": propaty.prompt},
                 {"role": "user", "content": propaty.text}
                 ]
     # print("--------------------------------")
     # print(messages)
     # print("--------------------------------")
-    response = openai.chat.completions.create(
-                    model = propaty.model,
-                    messages = messages,
-                    temperature=0
+    # response = openai.chat.completions.create(
+    #                 model = propaty.model,
+    #                 messages = messages,
+    #                 temperature=0
+    #             )
+    response = client.messages.create(
+                    model="claude-3-haiku-20240307",
+                    max_tokens=1000, # 出力上限（4096まで）
+                    temperature=0.0, # 0.0-1.0
+                    system=propaty.prompt, # 必要ならシステムプロンプトを設定
+                    messages=messages
                 )
     # print("model:",propaty.model)
-    text = response.choices[0].message.content
+    # text = response.choices[0].message.content
+    text = response.content[0].text
     return text, json.dumps(messages)
 
 
@@ -328,13 +344,13 @@ def re_gpt(t_or_q,payload,data):
     messages = json.loads(payload)
     # print(messages)
     # print("--------------------------------")
-    start = time.time()
+    # start = time.time()
     response = openai.chat.completions.create(
                     model = propaty.model,
                     messages = messages,
-                    temperature=0.5
+                    temperature=0.7
                 )
-    end = time.time()
+    # end = time.time()
     # print('seconds:',end-start,'[s]')
     text = response.choices[0].message.content
     return text

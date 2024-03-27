@@ -9,5 +9,6 @@ class Data(models.Model):
     posted_date = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=255)
     body = models.TextField()
+    image_url = models.CharField(max_length=100, default="../static/image/book.png")
     chat_type = models.ForeignKey(ChatType,on_delete=models.RESTRICT)
     release = models.BooleanField(default=False)

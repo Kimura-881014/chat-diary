@@ -63,7 +63,7 @@ class IndexView(LoginRequiredMixin,TemplateView):
         else:
             data = Data.objects.filter(user_id=User.objects.get(user_id=user_id)).order_by('posted_date').reverse()
             url = ""
-        data_page = Paginator(data, 1)
+        data_page = Paginator(data, 20)
         data_p = data_page.get_page(page)
         data_list = data_p.paginator.get_elided_page_range(page)
         context['data_p'] = data_p

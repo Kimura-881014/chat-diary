@@ -24,6 +24,7 @@ class TmpMsg(models.Model):
     body = models.TextField()
     question = models.TextField()
     chat_type = models.ForeignKey(ChatType,on_delete=models.PROTECT,default=1)
+    image_url = models.CharField(max_length=100, default="../static/image/book.png")
     body_payload = models.TextField()
     question_payload = models.TextField()
 
