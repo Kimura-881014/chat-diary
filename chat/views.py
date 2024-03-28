@@ -28,6 +28,10 @@ import anthropic
 
 from .forms import SetPasswordForm
 
+import boto3
+from PIL import Image, ImageOps
+from io import BytesIO
+
 # Create your views here.
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -48,6 +52,7 @@ diary_url = os.environ['DIARY_URL']
 
 
 REPLY_ENDPOINT_URL = "https://api.line.me/v2/bot/message/reply"
+DOWNLOAD_URL = 'https://api-data.line.me/v2/bot/message/{messageId}/content'
 ACCESSTOKEN = os.environ['ACCESSTOKEN']
 CHANNEL_SECRET = os.environ['CHANNEL_SECRET']
 HEADER = {
@@ -55,10 +60,17 @@ HEADER = {
     'Authorization': 'Bearer ' + ACCESSTOKEN
 }
 
+s3 = boto3.client('s3',
+                   aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                   aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+                   region_name='ap-northeast-1')
+
 client = anthropic.Anthropic(
     # もし環境変数でAPIキーをセットできなければここで指定:
     # api_key="..."
 )
+
+BUCKET_NAME = os.environ['BUCKET_NAME']
 
 
 @csrf_exempt
@@ -79,11 +91,49 @@ def call_back(request):
                 if message['type'] == 'text':
                     line_message = LineMessage(create_text_message(message['text'],user_id,request))
                     line_message.reply(reply_token)
+                elif message['type'] == 'image':
+                    print('ok')
+                    MessageId = message['id']
+                    line_message = LineMessage(save_image_to_s3(MessageId,user_id))
+                    line_message.reply(reply_token)
+
             elif data['type'] == 'postback':
                 message = data['postback']
                 line_message = LineMessage(return_post_back(message['data'],user_id))
                 line_message.reply(reply_token)
         return HttpResponse(status=200)
+
+
+def save_image_to_s3(message_id,user_id):
+    download_url = DOWNLOAD_URL.format(messageId=message_id)
+
+    # LINEから画像をダウンロード
+    request = urllib.request.Request(download_url, headers=HEADER)
+    response = urllib.request.urlopen(request)
+    image_data = response.read()
+    image_data_resize = resize_with_padding(image_data, 320, 180)
+
+    # S3に画像をアップロード
+    file_path = message_id + '.jpg'
+    s3.put_object(Bucket=BUCKET_NAME, Key=file_path, Body=image_data_resize, ContentType="image/jpeg")
+
+    try:
+        col = TmpMsg.objects.get(user__user_id=user_id)
+
+    except (TmpMsg.DoesNotExist,User.DoesNotExist):
+        col = NewChatMember(user_id)
+        ## ここでTmpMsgを作成する。。
+        ## 下のsaveができないから考える。
+    
+    if col.image_key != "":
+        s3.delete_object(Bucket=BUCKET_NAME, Key=col.image_key)
+    
+    col.image_key = file_path
+    col.save()
+
+    message = [{'type': 'text','text': '画像を保存しました'}]
+
+    return message
 
 
 def create_text_message(message,user_id,request):
@@ -143,12 +193,13 @@ def save_data(user_id):
         message = add_quick_replay_see_diary(message)
         return message
     if col.title != "":
-        Data.objects.create(user=user,title=col.title,body=col.body,chat_type=col.chat_type,image_url=col.image_url)
+        Data.objects.create(user=user,title=col.title,body=col.body,chat_type=col.chat_type,image_key=col.image_key)
         TmpMsg.objects.update_or_create(user=user,
                                                 defaults={
                                                             'title':"",
                                                             'question':"",
                                                             'body':"",
+                                                            'image_key':"",
                                                             'chat_type':col.chat_type,
                                                             'body_payload':"",
                                                             'question_payload':""
@@ -308,31 +359,31 @@ def gpt_api(t_or_q,prompt,text,data):
     propaty = GPTPropaty(data.chat_type.id)
     propaty.select_model(t_or_q)
     propaty.select_prompt(prompt,text,data)
-    # messages = [
-    #             {"role": "system", "content": propaty.prompt},
-    #             {"role": "user", "content": propaty.text}
-    #             ]
     messages = [
+                {"role": "system", "content": propaty.prompt},
                 {"role": "user", "content": propaty.text}
                 ]
+    # messages = [
+    #             {"role": "user", "content": propaty.text}
+    #             ]
     # print("--------------------------------")
     # print(messages)
     # print("--------------------------------")
-    # response = openai.chat.completions.create(
-    #                 model = propaty.model,
-    #                 messages = messages,
-    #                 temperature=0
-    #             )
-    response = client.messages.create(
-                    model="claude-3-haiku-20240307",
-                    max_tokens=1000, # 出力上限（4096まで）
-                    temperature=0.0, # 0.0-1.0
-                    system=propaty.prompt, # 必要ならシステムプロンプトを設定
-                    messages=messages
+    response = openai.chat.completions.create(
+                    model = propaty.model,
+                    messages = messages,
+                    temperature=0
                 )
+    # response = client.messages.create(
+    #                 model="claude-3-haiku-20240307",
+    #                 max_tokens=1000, # 出力上限（4096まで）
+    #                 temperature=0.0, # 0.0-1.0
+    #                 system=propaty.prompt, # 必要ならシステムプロンプトを設定
+    #                 messages=messages
+    #             )
     # print("model:",propaty.model)
-    # text = response.choices[0].message.content
-    text = response.content[0].text
+    text = response.choices[0].message.content
+    # text = response.content[0].text
     return text, json.dumps(messages)
 
 
@@ -484,6 +535,21 @@ def return_post_back(message,user_id):
         message = [{'type': 'text','text': 'error in change_chat_type'}]
     return message
 
+
+# 画像を小さくする関数
+def resize_with_padding(bytes_data, width, height):
+    # Bytesデータから画像を読み込む
+    image = Image.open(BytesIO(bytes_data))
+    
+    # 縦横比を維持しながら指定されたサイズにリサイズする
+    resized_image = ImageOps.pad(image, (width, height), color='white')
+    
+    # リサイズ後の画像のbytesデータを取得
+    resized_bytes = BytesIO()
+    resized_image.save(resized_bytes, format=image.format)
+    resized_bytes.seek(0)
+    
+    return resized_bytes.getvalue()
 
 
 

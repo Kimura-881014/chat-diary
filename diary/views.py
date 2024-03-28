@@ -22,9 +22,18 @@ from django.db.models import Q
 from django.contrib import messages
 from django.core.mail import send_mail
 
+import boto3
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 dotenv_path = os.path.join(BASE_DIR, '.env')
 load_dotenv(dotenv_path)
+
+s3 = boto3.client('s3',
+                   aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                   aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+                   region_name='ap-northeast-1')
+
+BUCKET_NAME = os.environ['BUCKET_NAME']
 
 class LoginView(TemplateView):
     def get(self, request,*args, **kwargs):
@@ -65,6 +74,15 @@ class IndexView(LoginRequiredMixin,TemplateView):
             url = ""
         data_page = Paginator(data, 20)
         data_p = data_page.get_page(page)
+        for item in data_p:
+            if item.image_key != "../static/image/book.png":
+                item.image_url =  s3.generate_presigned_url(
+                                                            ClientMethod = 'get_object',
+                                                            Params = {'Bucket' : BUCKET_NAME, 'Key' : item.image_key},
+                                                            ExpiresIn = 14,
+                                                            HttpMethod = 'GET')
+            else:
+                item.image_url = "../static/image/book.png"
         data_list = data_p.paginator.get_elided_page_range(page)
         context['data_p'] = data_p
         context['data_list'] = data_list
@@ -156,6 +174,7 @@ class MyDeleteView(LoginRequiredMixin,TemplateView):
         # index = int(self.request.GET.get('index'))
         col = Data.objects.get(id=index)
         if col.user.user_id == user_id: # 消そうとしているcolのuseridがgetのidと等しいとき
+            s3.delete_object(Bucket=BUCKET_NAME, Key=col.image_key)
             col.delete()
             url = reverse('top_page')
             parameters = urlencode({'page':1})
