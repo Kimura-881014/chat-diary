@@ -199,7 +199,7 @@ def save_data(user_id):
                                                             'title':"",
                                                             'question':"",
                                                             'body':"",
-                                                            'image_key':"",
+                                                            'image_key':"../static/image/book.png",
                                                             'chat_type':col.chat_type,
                                                             'body_payload':"",
                                                             'question_payload':""
