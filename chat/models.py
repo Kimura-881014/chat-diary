@@ -12,6 +12,8 @@ class ChatType(models.Model):
     second_question = models.TextField()
     text_model = models.PositiveSmallIntegerField(default=3)
     question_model = models.PositiveSmallIntegerField(default=4)
+    text_model_s = models.CharField(max_length=100)
+    question_model_s = models.CharField(max_length=100)
     release = models.BooleanField(default=False)
 
     def __str__(self):

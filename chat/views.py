@@ -286,7 +286,7 @@ def gpt_chat(user_id,message):
                     message = [{'type': 'text','text': '会話履歴がありません'}]
                     message = add_quick_replay_see_diary(message)
                     return message
-                answer2 = re_gpt("q",col.question_payload,col)
+                answer2 = re_chat_api(col.question_payload)
                 defaults={
                             'count':col.count+1,
                             'question':answer2,
@@ -294,8 +294,8 @@ def gpt_chat(user_id,message):
                         }
                 message = [{'type': 'text','text': answer2}]
             else:
-                answer1 = re_gpt("t",col.body_payload,col)
-                answer2 = re_gpt("q",col.question_payload,col)
+                answer1 = re_chat_api(col.body_payload)
+                answer2 = re_chat_api(col.question_payload)
                 defaults={
                             'count':col.count+1,
                             'question':answer2,
@@ -307,7 +307,7 @@ def gpt_chat(user_id,message):
 
         else:
             if col.question == "":
-                answer2, payload2 = gpt_api("q",3,message,col)
+                answer2, payload2 = chat_api("q",3,message,col)
                 defaults={
                             'count':col.count+1,
                             'title':message,
@@ -317,8 +317,8 @@ def gpt_chat(user_id,message):
                         }
                 message = [{'type': 'text','text': answer2}]
             elif col.body == "":
-                answer1, payload1 = gpt_api("t",1,message,col)
-                answer2, payload2 = gpt_api("q",4,answer1,col)
+                answer1, payload1 = chat_api("t",1,message,col)
+                answer2, payload2 = chat_api("q",4,answer1,col)
                 defaults={
                             'count':col.count+1,
                             'question':answer2,
@@ -330,8 +330,8 @@ def gpt_chat(user_id,message):
                 message = [{'type': 'text','text': answer1},
                            {'type': 'text','text': answer2}]
             else:
-                answer1,payload1 = gpt_api("t",2,message,col)
-                answer2,payload2 = gpt_api("q",4,answer1,col)
+                answer1,payload1 = chat_api("t",2,message,col)
+                answer2,payload2 = chat_api("q",4,answer1,col)
                 defaults={
                             'count':col.count+1,
                             'question':answer2,
@@ -352,74 +352,87 @@ def gpt_chat(user_id,message):
 
 
 
-# GPTのAPIをたたく
-def gpt_api(t_or_q,prompt,text,data):
+# GPT, cloude3のAPIをたたく
+def chat_api(t_or_q,prompt,text,data):
     # model = select_model(model)
     # prompt = select_prompt(prompt)
-    propaty = GPTPropaty(data.chat_type.id)
-    propaty.select_model(t_or_q)
-    propaty.select_prompt(prompt,text,data)
-    messages = [
-                {"role": "system", "content": propaty.prompt},
-                {"role": "user", "content": propaty.text}
-                ]
-    # messages = [
-    #             {"role": "user", "content": propaty.text}
-    #             ]
-    # print("--------------------------------")
-    # print(messages)
-    # print("--------------------------------")
-    response = openai.chat.completions.create(
-                    model = propaty.model,
-                    messages = messages,
-                    temperature=0
-                )
-    # response = client.messages.create(
-    #                 model="claude-3-haiku-20240307",
-    #                 max_tokens=1000, # 出力上限（4096まで）
-    #                 temperature=0.0, # 0.0-1.0
-    #                 system=propaty.prompt, # 必要ならシステムプロンプトを設定
-    #                 messages=messages
-    #             )
-    # print("model:",propaty.model)
-    text = response.choices[0].message.content
-    # text = response.content[0].text
+    property = ChatAPIProperty(data.chat_type.id)
+    property.select_model(t_or_q)
+    property.select_prompt(prompt,text,data)
+    if "gpt" in property.model:
+        messages = [
+                    {"role": "system", "content": property.prompt},
+                    {"role": "user", "content": property.text}
+                    ]
+        # print("--------------------------------")
+        # print(messages)
+        # print("--------------------------------")
+        response = openai.chat.completions.create(
+                        model = property.model,
+                        messages = messages,
+                        temperature=0
+                    )
+        text = response.choices[0].message.content
+    elif "claude" in property.model:
+        messages = [
+                    {"role": "user", "content": property.text}
+                    ]
+        response = client.messages.create(
+                        model=property.model,
+                        max_tokens=1000, # 出力上限（4096まで）
+                        temperature=0.0, # 0.0-1.0
+                        system=property.prompt, # 必要ならシステムプロンプトを設定
+                        messages=messages
+                    )
+        text = response.content[0].text
+        messages.append({"role": "system", "content": property.prompt})
+
+    print(response)
+    print("model:",property.model)
+    
+    messages.append({"model":property.model})
     return text, json.dumps(messages)
 
 
 
-# やり直しの時のGPTAPI
-def re_gpt(t_or_q,payload,data):
-    propaty = GPTPropaty(data.chat_type.id)
-    propaty.select_model(t_or_q)
+# やり直しの時のChat API
+def re_chat_api(payload):
     messages = json.loads(payload)
+    model = messages.pop(-1)['model']
     # print(messages)
     # print("--------------------------------")
     # start = time.time()
-    response = openai.chat.completions.create(
-                    model = propaty.model,
-                    messages = messages,
-                    temperature=0.7
-                )
-    # end = time.time()
-    # print('seconds:',end-start,'[s]')
-    text = response.choices[0].message.content
+    if "gpt" in model:
+        response = openai.chat.completions.create(
+                        model = model,
+                        messages = messages,
+                        temperature=0.7
+                    )
+        text = response.choices[0].message.content
+    elif "claude" in model:
+        system = messages.pop(-1)['content']
+        response = client.messages.create(
+                        model=model,
+                        max_tokens=1000, # 出力上限（4096まで）
+                        temperature=0.0, # 0.0-1.0
+                        system=system, # 必要ならシステムプロンプトを設定
+                        messages=messages
+                    )
+        text = response.content[0].text
+
     return text
 
 
-class GPTPropaty():
+class ChatAPIProperty():
     def __init__(self,id):
         self.col = ChatType.objects.get(id=id)
 
     def select_model(self,t_or_q):
         if t_or_q == "t":
-            model = self.col.text_model
+            self.model = self.col.text_model_s
         else:
-            model = self.col.question_model
-        if model == 3:
-            self.model = "gpt-3.5-turbo-0125"
-        elif model == 4:
-            self.model = "gpt-4-0125-preview"
+            self.model = self.col.question_model_s
+
 
     def select_prompt(self,num,text,data):
         if num == 1:
