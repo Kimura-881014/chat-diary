@@ -484,7 +484,8 @@ class NewChatMember():
         self.chat_type = ChatType.objects.get(id=1)
         self.question = ""
         self.body_payload = ""
-        self.que_payload = ""
+        self.question_payload = ""
+        self.image_key = "../static/image/book.png"
         password = randompwd(20)
         user = User.objects.create_user(user_id,"", password)
         user.save()
